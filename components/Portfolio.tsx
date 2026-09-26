@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, MouseEvent, ReactNode } from "react";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import {
   Code2,
   Database,
@@ -39,39 +40,21 @@ interface ScrollAnimateProps {
 }
 
 function ScrollAnimate({ children, className = "", delay = 0 }: ScrollAnimateProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      { threshold: 0.15 }
-    );
-
-    const currentRef = ref.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, []);
-
   return (
-    <div
-      ref={ref}
-      style={{ transitionDelay: `${delay}ms` }}
-      className={`transition-all duration-700 ease-out transform ${
-        isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-12 scale-95 pointer-events-none"
-      } ${className}`}
+    <motion.div
+      initial={{ opacity: 0, y: 35, scale: 0.96 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 20, scale: 0.96 }}
+      viewport={{ once: false, amount: 0.15 }}
+      transition={{
+        duration: 0.6,
+        delay: delay / 1000,
+        ease: [0.215, 0.61, 0.355, 1],
+      }}
+      className={className}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
@@ -108,6 +91,22 @@ interface SoftSkill {
 
 export default function Portfolio() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Section reference for Progressive Vertical Timeline Loading Bar
+  const experiencesRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: experiencesRef,
+    offset: ["start 65%", "end 80%"],
+  });
+
+  const scaleY = useSpring(scrollYProgress, {
+    stiffness: 120,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
+  const glowTop = useTransform(scaleY, (v) => `${v * 100}%`);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -254,7 +253,7 @@ export default function Portfolio() {
     {
       title: "Database",
       icon: Database,
-      skills: ["Oracle Apex","SQL", "Oracle Machine Learning"],
+      skills: ["Oracle Apex", "SQL", "Oracle Machine Learning"],
     },
     {
       title: "Data & Visualization",
@@ -297,53 +296,37 @@ export default function Portfolio() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-body antialiased selection:bg-blue-600 selection:text-white">
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 transition-all duration-300">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-body antialiased selection:bg-blue-600 selection:text-white overflow-x-hidden">
+      {/* --- HEADER --- */}
+      <motion.header
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 transition-all duration-300"
+      >
         <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-          <a
+          <motion.a
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             href="#"
             onClick={(e) => scrollToSection("about", e)}
             className="font-headline font-extrabold text-xl text-slate-900 tracking-tight hover:text-blue-600 transition-colors"
           >
             Evelyn Valencia
-          </a>
+          </motion.a>
 
           <nav className="hidden md:flex items-center gap-8 font-body text-sm font-medium text-slate-600">
-            <a
-              href="#about"
-              onClick={(e) => scrollToSection("about", e)}
-              className="hover:text-blue-600 transition-colors"
-            >
-              About
-            </a>
-            <a
-              href="#experiences"
-              onClick={(e) => scrollToSection("experiences", e)}
-              className="hover:text-blue-600 transition-colors"
-            >
-              Experiences
-            </a>
-            <a
-              href="#projects"
-              onClick={(e) => scrollToSection("projects", e)}
-              className="hover:text-blue-600 transition-colors"
-            >
-              Projects
-            </a>
-            <a
-              href="#skills"
-              onClick={(e) => scrollToSection("skills", e)}
-              className="hover:text-blue-600 transition-colors"
-            >
-              Skills
-            </a>
-            <a
-              href="#contact"
-              onClick={(e) => scrollToSection("contact", e)}
-              className="hover:text-blue-600 transition-colors"
-            >
-              Contact
-            </a>
+            {["about", "experiences", "projects", "skills", "contact"].map((sec) => (
+              <motion.a
+                key={sec}
+                whileHover={{ y: -2, color: "#2563eb" }}
+                href={`#${sec}`}
+                onClick={(e) => scrollToSection(sec, e)}
+                className="capitalize transition-colors"
+              >
+                {sec}
+              </motion.a>
+            ))}
           </nav>
 
           <button
@@ -356,48 +339,28 @@ export default function Portfolio() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-b border-slate-200 px-6 py-6 space-y-4 font-body text-base font-semibold animate-in slide-in-from-top-4 duration-300">
-            <a
-              href="#about"
-              onClick={(e) => scrollToSection("about", e)}
-              className="block py-2 text-slate-700 hover:text-blue-600 transition-colors"
-            >
-              About
-            </a>
-            <a
-              href="#experiences"
-              onClick={(e) => scrollToSection("experiences", e)}
-              className="block py-2 text-slate-700 hover:text-blue-600 transition-colors"
-            >
-              Experiences
-            </a>
-            <a
-              href="#projects"
-              onClick={(e) => scrollToSection("projects", e)}
-              className="block py-2 text-slate-700 hover:text-blue-600 transition-colors"
-            >
-              Projects
-            </a>
-            <a
-              href="#skills"
-              onClick={(e) => scrollToSection("skills", e)}
-              className="block py-2 text-slate-700 hover:text-blue-600 transition-colors"
-            >
-              Skills
-            </a>
-            <a
-              href="#contact"
-              onClick={(e) => scrollToSection("contact", e)}
-              className="block py-2 text-slate-700 hover:text-blue-600 transition-colors"
-            >
-              Contact
-            </a>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-white border-b border-slate-200 px-6 py-6 space-y-4 font-body text-base font-semibold"
+          >
+            {["about", "experiences", "projects", "skills", "contact"].map((sec) => (
+              <a
+                key={sec}
+                href={`#${sec}`}
+                onClick={(e) => scrollToSection(sec, e)}
+                className="block py-2 text-slate-700 hover:text-blue-600 capitalize transition-colors"
+              >
+                {sec}
+              </a>
+            ))}
+          </motion.div>
         )}
-      </header>
+      </motion.header>
 
       {/* --- ABOUT SECTION --- */}
-      <section id="about" className="bg-white py-16 sm:py-24 border-b border-slate-100">
+      <section id="about" className="bg-white py-16 sm:py-24 border-b border-slate-100 overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             <ScrollAnimate>
@@ -414,55 +377,79 @@ export default function Portfolio() {
 
             <ScrollAnimate delay={200}>
               <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4">
-                <a
+                <motion.a
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
                   href="#projects"
                   onClick={(e) => scrollToSection("projects", e)}
-                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-body font-medium px-6 py-3.5 rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-1 text-sm"
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-body font-medium px-6 py-3.5 rounded-xl shadow-lg shadow-blue-500/20 transition-all text-sm"
                 >
                   View Projects ↓
-                </a>
+                </motion.a>
 
                 <div className="flex items-center gap-2 pl-2">
-                  <a
+                  <motion.a
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.9 }}
                     href="https://id.linkedin.com/in/evelyn-valencia-141a38326"
                     target="_blank"
                     rel="noreferrer"
-                    className="p-3 rounded-xl border border-slate-200 text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all hover:-translate-y-0.5"
+                    className="p-3 rounded-xl border border-slate-200 text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all"
                   >
                     <LinkedinIcon className="w-4 h-4" />
-                  </a>
-                  <a
+                  </motion.a>
+                  <motion.a
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.9 }}
                     href="https://www.instagram.com/eveelynnn29/"
                     target="_blank"
                     rel="noreferrer"
-                    className="p-3 rounded-xl border border-slate-200 text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all hover:-translate-y-0.5"
+                    className="p-3 rounded-xl border border-slate-200 text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all"
                   >
                     <InstagramIcon className="w-4 h-4" />
-                  </a>
+                  </motion.a>
                 </div>
               </div>
             </ScrollAnimate>
           </div>
 
           <div className="lg:col-span-5 flex justify-center">
-            <ScrollAnimate delay={300}>
-              <div className="relative group cursor-pointer">
+            <ScrollAnimate delay={250}>
+              <motion.div
+                animate={{
+                  y: [0, -10, 0],
+                }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="relative group cursor-pointer"
+              >
                 <div className="absolute -inset-2 rounded-full bg-blue-500/20 opacity-30 blur-xl group-hover:opacity-60 transition-opacity duration-500"></div>
-                <div className="relative w-60 h-60 sm:w-72 sm:h-72 rounded-full overflow-hidden border-4 border-white shadow-2xl bg-slate-200 transform group-hover:scale-105 transition-transform duration-500">
+                <motion.div
+                  whileHover={{ scale: 1.05, rotate: 2 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className="relative w-60 h-60 sm:w-72 sm:h-72 rounded-full overflow-hidden border-4 border-white shadow-2xl bg-slate-200"
+                >
                   <img
                     src="/profile.png"
                     alt="Evelyn Valencia"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover"
                   />
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </ScrollAnimate>
           </div>
         </div>
       </section>
 
-      {/* --- EXPERIENCES SECTION --- */}
-      <section id="experiences" className="bg-slate-50 py-20 sm:py-28 border-b border-slate-200/60 relative overflow-hidden">
+      {/* --- EXPERIENCES SECTION (FIXED Z-INDEX FOR VERTICAL PROGRESS BAR) --- */}
+      <section
+        id="experiences"
+        ref={experiencesRef}
+        className="bg-slate-50 py-20 sm:py-28 border-b border-slate-200/60 relative overflow-hidden"
+      >
         <div className="absolute top-1/4 left-0 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-indigo-400/5 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -482,11 +469,28 @@ export default function Portfolio() {
           </ScrollAnimate>
 
           <div className="space-y-12 relative">
-            <div className="hidden lg:block absolute left-1/2 top-8 bottom-8 w-0.5 bg-gradient-to-b from-blue-200 via-indigo-200 to-slate-200 -translate-x-1/2 rounded-full"></div>
+            {/* Background Track Line (z-0) */}
+            <div className="hidden lg:block absolute left-1/2 top-4 bottom-4 w-1 bg-slate-200/80 -translate-x-1/2 rounded-full z-0"></div>
+
+            {/* Active Progressive Filled Line (z-0) */}
+            <motion.div
+              style={{ scaleY }}
+              className="hidden lg:block absolute left-1/2 top-4 bottom-4 w-1 bg-gradient-to-b from-blue-500 via-indigo-500 to-blue-600 -translate-x-1/2 rounded-full origin-top z-0 shadow-[0_0_10px_rgba(37,99,235,0.3)]"
+            ></motion.div>
+
+            {/* Glowing Dot Tracker at bottom edge of progress line (z-0) */}
+            <motion.div
+              style={{ top: glowTop }}
+              className="hidden lg:block absolute left-1/2 w-3.5 h-3.5 bg-blue-600 border-2 border-white rounded-full -translate-x-1/2 -translate-y-1/2 z-0 shadow-md shadow-blue-500/50"
+            ></motion.div>
 
             {experiencesData.map((exp, index) => (
               <ScrollAnimate key={exp.id} delay={index * 100}>
-                <div className="group relative bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs hover:shadow-2xl hover:border-blue-300 transition-all duration-500 transform hover:-translate-y-1.5 grid grid-cols-1 lg:grid-cols-12">
+                <motion.div
+                  whileHover={{ y: -6, scale: 1.01 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="group relative z-10 bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs hover:shadow-2xl hover:border-blue-300 transition-all duration-300 grid grid-cols-1 lg:grid-cols-12"
+                >
                   <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/80 flex items-center justify-center font-headline font-bold text-xs text-slate-700 shadow-sm group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all duration-300">
                     0{index + 1}
                   </div>
@@ -527,7 +531,7 @@ export default function Portfolio() {
                       {exp.description}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               </ScrollAnimate>
             ))}
           </div>
@@ -554,20 +558,24 @@ export default function Portfolio() {
               </div>
 
               <div className="flex items-center gap-3">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={prevProject}
-                  className="p-3 rounded-full bg-white border border-slate-200/80 shadow-sm hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all active:scale-90"
+                  className="p-3 rounded-full bg-white border border-slate-200/80 shadow-sm hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors"
                   aria-label="Previous Project"
                 >
                   <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={nextProject}
-                  className="p-3 rounded-full bg-white border border-slate-200/80 shadow-sm hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all active:scale-90"
+                  className="p-3 rounded-full bg-white border border-slate-200/80 shadow-sm hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors"
                   aria-label="Next Project"
                 >
                   <ChevronRight className="w-5 h-5" />
-                </button>
+                </motion.button>
               </div>
             </div>
           </ScrollAnimate>
@@ -582,19 +590,29 @@ export default function Portfolio() {
               const isCenter = offset === 0;
 
               return (
-                <div
-                  key={`${proj.id}-${offset}`}
+                <motion.div
+                  key={proj.id}
+                  layout
+                  initial={false}
+                  animate={{
+                    x: `${offset * 105}%`,
+                    scale: isCenter ? 1 : 0.85,
+                    opacity: isCenter ? 1 : 0.35,
+                    filter: isCenter ? "blur(0px)" : "blur(2px)",
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 260,
+                    damping: 25,
+                  }}
                   onClick={() => {
                     if (offset === -1) prevProject();
                     if (offset === 1) nextProject();
                   }}
-                  style={{
-                    transform: `translateX(${offset * 105}%) scale(${isCenter ? 1 : 0.85})`,
-                  }}
-                  className={`absolute transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] cursor-pointer select-none w-[88%] max-w-[520px] bg-white/90 backdrop-blur-md rounded-3xl border p-6 flex flex-col justify-between shadow-xl ${
+                  className={`absolute cursor-pointer select-none w-[88%] max-w-[520px] bg-white/90 backdrop-blur-md rounded-3xl border p-6 flex flex-col justify-between shadow-xl ${
                     isCenter
-                      ? "z-20 opacity-100 border-blue-300 shadow-blue-500/15"
-                      : "z-10 opacity-30 blur-[1px] border-slate-200 hover:opacity-50"
+                      ? "z-20 border-blue-300 shadow-blue-500/15"
+                      : "z-10 border-slate-200 hover:opacity-60"
                   }`}
                 >
                   <div>
@@ -629,24 +647,26 @@ export default function Portfolio() {
                   </div>
 
                   <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                    <a
+                    <motion.a
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       href={proj.link}
                       target="_blank"
                       rel="noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-body text-xs font-semibold px-5 py-2.5 rounded-full shadow-md shadow-blue-500/20 transition-all hover:scale-105"
+                      className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-body text-xs font-semibold px-5 py-2.5 rounded-full shadow-md shadow-blue-500/20 transition-colors"
                     >
                       View Project ↗
-                    </a>
+                    </motion.a>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
         </ScrollAnimate>
       </section>
 
-      {/* --- SKILLS SECTION (NEW DESIGN & LEADERSHIP ADDED) --- */}
+      {/* --- SKILLS SECTION --- */}
       <section id="skills" className="bg-slate-900 text-white py-24 sm:py-32 border-b border-slate-800 relative overflow-hidden">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -673,10 +693,14 @@ export default function Portfolio() {
                 const Icon = cat.icon;
                 return (
                   <ScrollAnimate key={idx} delay={idx * 100}>
-                    <div className="h-full bg-slate-800/50 backdrop-blur-xl p-6 rounded-3xl border border-slate-700/60 shadow-xl hover:border-blue-500/40 transition-all duration-300 group flex flex-col justify-between">
+                    <motion.div
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                      className="h-full bg-slate-800/50 backdrop-blur-xl p-6 rounded-3xl border border-slate-700/60 shadow-xl hover:border-blue-500/40 transition-colors group flex flex-col justify-between"
+                    >
                       <div>
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="p-3 bg-blue-500/10 text-blue-400 rounded-2xl border border-blue-500/20 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                          <div className="p-3 bg-blue-500/10 text-blue-400 rounded-2xl border border-blue-500/20 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
                             <Icon className="w-5 h-5" />
                           </div>
                           <h3 className="font-headline font-bold text-white text-lg">
@@ -695,7 +719,7 @@ export default function Portfolio() {
                           ))}
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   </ScrollAnimate>
                 );
               })}
@@ -704,7 +728,11 @@ export default function Portfolio() {
             {/* Soft Skills Right Column */}
             <div className="lg:col-span-6">
               <ScrollAnimate delay={200}>
-                <div className="h-full bg-slate-800/50 backdrop-blur-xl p-8 rounded-3xl border border-slate-700/60 shadow-xl space-y-6 flex flex-col justify-between">
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className="h-full bg-slate-800/50 backdrop-blur-xl p-8 rounded-3xl border border-slate-700/60 shadow-xl space-y-6 flex flex-col justify-between"
+                >
                   <div>
                     <div className="flex items-center gap-3.5 border-b border-slate-700/60 pb-5">
                       <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20">
@@ -722,7 +750,11 @@ export default function Portfolio() {
                       {softSkills.map((sSkill, idx) => {
                         const SIcon = sSkill.icon;
                         return (
-                          <div key={idx} className="flex gap-3.5 items-start group">
+                          <motion.div
+                            key={idx}
+                            whileHover={{ x: 4 }}
+                            className="flex gap-3.5 items-start group"
+                          >
                             <div className="p-2.5 bg-slate-900/80 text-blue-400 rounded-xl border border-slate-700/80 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-500 transition-all duration-300 shrink-0">
                               <SIcon className="w-4 h-4" />
                             </div>
@@ -734,12 +766,12 @@ export default function Portfolio() {
                                 {sSkill.desc}
                               </p>
                             </div>
-                          </div>
+                          </motion.div>
                         );
                       })}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </ScrollAnimate>
             </div>
           </div>
@@ -750,9 +782,12 @@ export default function Portfolio() {
       <section id="contact" className="bg-white py-24 sm:py-32">
         <div className="max-w-3xl mx-auto px-6 text-center space-y-8">
           <ScrollAnimate>
-            <h2 className="font-headline text-4xl sm:text-6xl font-black tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 bg-clip-text text-transparent leading-tight pb-2">
+            <motion.h2
+              whileHover={{ scale: 1.02 }}
+              className="font-headline text-4xl sm:text-6xl font-black tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 bg-clip-text text-transparent leading-tight pb-2 cursor-default"
+            >
               Let's work together!
-            </h2>
+            </motion.h2>
           </ScrollAnimate>
 
           <ScrollAnimate delay={100}>
@@ -766,18 +801,20 @@ export default function Portfolio() {
               <span className="font-accent text-xs font-semibold text-slate-400 tracking-wider uppercase block">
                 EMAIL ME AT
               </span>
-              <a
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 href="mailto:evelynvalencia070@gmail.com"
                 className="inline-block font-headline text-xl sm:text-3xl font-extrabold text-slate-900 hover:text-blue-600 transition-colors"
               >
                 evelynvalencia070@gmail.com
-              </a>
+              </motion.a>
             </div>
           </ScrollAnimate>
 
           <ScrollAnimate delay={300}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 pt-8 border-t border-slate-100 max-w-xl mx-auto">
-              <div className="space-y-1">
+              <motion.div whileHover={{ y: -2 }} className="space-y-1">
                 <span className="font-accent text-[11px] font-semibold text-slate-400 tracking-wider uppercase block">
                   PHONE / WHATSAPP
                 </span>
@@ -789,11 +826,11 @@ export default function Portfolio() {
                 >
                   081271358887
                 </a>
-              </div>
+              </motion.div>
 
               <div className="hidden sm:block w-px h-8 bg-slate-200"></div>
 
-              <div className="space-y-1">
+              <motion.div whileHover={{ y: -2 }} className="space-y-1">
                 <span className="font-accent text-[11px] font-semibold text-slate-400 tracking-wider uppercase block">
                   INSTAGRAM
                 </span>
@@ -805,11 +842,11 @@ export default function Portfolio() {
                 >
                   @eveelynnn29
                 </a>
-              </div>
+              </motion.div>
 
               <div className="hidden sm:block w-px h-8 bg-slate-200"></div>
 
-              <div className="space-y-1">
+              <motion.div whileHover={{ y: -2 }} className="space-y-1">
                 <span className="font-accent text-[11px] font-semibold text-slate-400 tracking-wider uppercase block">
                   LINKEDIN
                 </span>
@@ -821,7 +858,7 @@ export default function Portfolio() {
                 >
                   Evelyn Valencia
                 </a>
-              </div>
+              </motion.div>
             </div>
           </ScrollAnimate>
         </div>
