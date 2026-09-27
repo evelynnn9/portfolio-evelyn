@@ -131,7 +131,7 @@ export default function Portfolio() {
       category: "Community Service",
       title: "Volunteer Vegan Festival 2024",
       description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      "Participated as a dance performer at Vegan Festival, collaborating with the dance team to prepare and deliver a performance for the event audience. This experience strengthened my teamwork, discipline, and confidence in performing on stage.",
       image: "/experience1.webp",
       align: "left",
     },
@@ -141,7 +141,7 @@ export default function Portfolio() {
       category: "Environmental Event",
       title: "Volunteer Earth Run 2024",
       description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      "Participated as a dance performer at Earth Run, working with the performance team through rehearsals and the live event. The experience helped me develop teamwork, adaptability, and stage performance skills.",
       image: "/experience2.webp",
       align: "right",
     },
@@ -151,7 +151,7 @@ export default function Portfolio() {
       category: "Educational Program",
       title: "Volunteer Bimbel Kampus Kijang TFI 2024",
       description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "Taught Mathematics to 5th-grade elementary school students through the TFI BINUS tutoring program. Assisted students in understanding mathematical concepts through clear explanations, practice exercises, and an interactive learning approach.",
       image: "/experience3.webp",
       align: "left",
     },
@@ -161,7 +161,7 @@ export default function Portfolio() {
       category: "Cultural & Arts Festival",
       title: "Sukabumi Suka Menari 2025",
       description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "Participated as a dance performer in Sukabumi Suka Menari, collaborating with other dancers to prepare and perform choreography. This experience helped develop my teamwork, discipline, and confidence.",
       image: "/experience4.webp",
       align: "right",
     },
@@ -171,7 +171,7 @@ export default function Portfolio() {
       category: "Religious & Anniversary Event",
       title: "Waisak Puja 2570 B.E. / 2026 x Waisak Symphony of Light x HUT KMBD XXXVII",
       description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "Participated as a theater performer in the Waisak Puja event, working collaboratively with the performance team throughout rehearsals and the live performance.",
       image: "/experience5.webp",
       align: "left",
     },
@@ -371,7 +371,7 @@ export default function Portfolio() {
 
             <ScrollAnimate delay={100}>
               <p className="font-body text-slate-600 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                I am an Information Systems student at Bina Nusantara University (BINUS) with a strong interest in Business Intelligence, data analytics, and technology. I enjoy exploring data, creating meaningful visualizations, and turning complex information into clear insights that can support better decisions. Through various academic projects and experiences, I have developed skills in SQL, Oracle, Excel, Tableau, and other technologies while continuously exploring new ways to combine data and technology to create impactful solutions.
               </p>
             </ScrollAnimate>
 
